@@ -1,5 +1,5 @@
 <script lang="ts">
-  import volumeProcUrl from "$lib/volume-processor?url"
+  import volumeProcUrl from "$lib/volume-processor?worker&url"
   import { Realtime, type PresenceMessage, type RealtimeChannel } from "ably"
   import { onDestroy, onMount } from "svelte"
   import { slide } from "svelte/transition"
