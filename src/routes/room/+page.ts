@@ -29,18 +29,18 @@ const getRandomName = () => {
     "Хороший",
   ]
   const nouns = [
-    "Канюк",
-    "Индюк",
     "Волк",
-    "Троль",
     "Гном",
+    "Индюк",
+    "Канюк",
     "Лоа",
     "Медведь",
     "Орёл",
     "Пингвин",
     "Слон",
+    "Троль",
   ]
-  return `${pick(adjectives)} ${pick(nouns)}`
+  return `${pick(adjectives)}${pick(nouns)}`
 }
 
 const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
