@@ -13,6 +13,8 @@
   let micMuted = $state(false)
   let micVolume = $state(0)
   let remoteAudio = $state<HTMLAudioElement>()
+  let beepBad: HTMLAudioElement
+  let beepGood: HTMLAudioElement
   let peers = $state<Record<string, PresenceMessage>>({})
   const sortedPeers = $derived(
     Object.values(peers).sort((a, b) => a.clientId.localeCompare(b.clientId)),
@@ -56,9 +58,11 @@
       console.log("connectionstatechange", event)
       if (pc?.connectionState === "connected") {
         console.log("Connected to remote peer")
+        beepGood?.play()
         callStatus = "connected"
       } else if (pc?.connectionState === "disconnected") {
         console.log("Disconnected from remote peer")
+        beepBad?.play()
         leaveCall()
       }
     })
@@ -252,4 +256,15 @@
   bind:this={remoteAudio}
   autoplay
   controls
+></audio>
+
+<audio
+  bind:this={beepGood}
+  src="/beep-good.ogg"
+  volume="0.5"
+></audio>
+<audio
+  bind:this={beepBad}
+  src="/beep-bad.ogg"
+  volume="0.5"
 ></audio>
