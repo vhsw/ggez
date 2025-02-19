@@ -261,10 +261,10 @@
 <audio
   bind:this={beepGood}
   src="/beep-good.ogg"
-  volume="0.5"
+  volume={0.2}
 ></audio>
 <audio
   bind:this={beepBad}
   src="/beep-bad.ogg"
-  volume="0.5"
+  volume={1}
 ></audio>
