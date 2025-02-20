@@ -3,10 +3,8 @@
   import volumeProcUrl from "$lib/volume-processor?worker&url"
   import { Realtime, type InboundMessage, type RealtimeChannel } from "ably"
   import { onDestroy, onMount } from "svelte"
-  import { fade } from "svelte/transition"
   import type { PageData } from "./$types"
-  import MicLevel from "./MicLevel.svelte"
-  import PeerEl from "./Peer.svelte"
+  import Avatar from "./Avatar.svelte"
 
   const { data }: { data: PageData } = $props()
   const configuration = {
@@ -20,7 +18,7 @@
   let callStatus = $state<"connecting" | "connected" | "disconnected">("disconnected")
   let signalingStatus = $state<"connecting" | "connected" | "disconnected">("disconnected")
   let micMuted = $state(false)
-  let micVolume = $state(0)
+  let micLevel = $state(0)
 
   interface Peer {
     connectionId: string
@@ -29,6 +27,7 @@
     channel: RealtimeChannel
     pc: RTCPeerConnection | null
     volume: number
+    micLevel: number
     remoteAudio?: HTMLAudioElement
     color: string
   }
@@ -57,6 +56,7 @@
         name: msg.clientId,
         pc: null,
         volume: 1,
+        micLevel: 0,
         channel: realtime!.channels.get(`${data.id}:${msg.connectionId}`),
         rtcStatus: "disconnected",
         color: getRandomColor(),
@@ -99,7 +99,7 @@
       peer.pc.setRemoteDescription(new RTCSessionDescription(msg.data))
       const answer = await peer.pc.createAnswer()
       peer.pc.setLocalDescription(answer)
-      realtime!.channels.get(`${data.id}:${msg.connectionId}`).publish("answer", answer)
+      realtime?.channels.get(`${data.id}:${msg.connectionId}`).publish("answer", answer)
     })
     await selfChannel.subscribe("answer", async (msg) => {
       console.log("Received answer", msg)
@@ -109,14 +109,23 @@
       }
       peer.rtcStatus = "connected"
     })
+    audioContext = new AudioContext()
+    await audioContext.audioWorklet.addModule(volumeProcUrl)
     try {
       localStream = await navigator.mediaDevices.getUserMedia({
         audio: { channelCount: 1 },
       })
       micMuted = false
-      await connectMicLevel(localStream)
     } catch (error) {
       console.error("Error accessing media devices", error)
+    }
+    if (localStream) {
+      const volumeNode = new AudioWorkletNode(audioContext, "volume-processor")
+      volumeNode.port.onmessage = (event: MessageEvent<{ volume: number }>) => {
+        micLevel = event.data.volume * 10
+      }
+      const micNode = audioContext.createMediaStreamSource(localStream)
+      micNode.connect(volumeNode)
     }
     const getPeer = (msg: InboundMessage) => {
       if (!msg.connectionId || !(msg.connectionId in peers)) throw new Error("Invalid connectionId")
@@ -150,8 +159,17 @@
       console.log("iceconnectionstatechange", event)
     })
     pc.addEventListener("track", (event) => {
+      const stream = event.streams[0]
+      if (audioContext) {
+        const volumeNode = new AudioWorkletNode(audioContext, "volume-processor")
+        volumeNode.port.onmessage = (event: MessageEvent<{ volume: number }>) => {
+          peer.micLevel = event.data.volume * 10
+        }
+        const micNode = audioContext.createMediaStreamSource(stream)
+        micNode.connect(volumeNode)
+      }
       if (remoteAudio) {
-        remoteAudio.srcObject = event.streams[0]
+        remoteAudio.srcObject = stream
       }
     })
     pc.addEventListener("connectionstatechange", (event) => {
@@ -174,19 +192,11 @@
     return pc
   }
 
-  async function connectMicLevel(stream: MediaStream) {
-    audioContext = new AudioContext()
-    await audioContext.audioWorklet.addModule(volumeProcUrl)
-    const volumeNode = new AudioWorkletNode(audioContext, "volume-processor")
-    volumeNode.port.onmessage = (event: MessageEvent<{ volume: number }>) => {
-      micVolume = event.data.volume * 10
-    }
-    const micNode = audioContext.createMediaStreamSource(stream)
-    micNode.connect(volumeNode)
-  }
+  async function connectMicLevel(stream: MediaStream) {}
 
   const leaveCall = async () => {
     console.log("leaving call")
+    micLevel = 0
     await audioContext?.close()
     Object.values(peers).forEach((p) => disconnectPeer(p))
     audioContext = null
@@ -228,79 +238,78 @@
 </svelte:head>
 
 <h1 class="relative mb-5 text-2xl font-bold">
-  Room <code>{data.id}</code>
+  Room <code
+    class="relative"
+    title={signalingStatus}
+  >
+    {data.id}
+  </code>
 </h1>
-<div class="mb-5">
-  Peers:
-  <div class="grid w-md grid-cols-2 gap-4 px-2 py-4">
-    <PeerEl
-      name={data.name + " (You)"}
-      color="purple"
-      status={callStatus}
-    />
 
+<div class="mb-5">
+  <div class="mb-3">Online peers:</div>
+  <div class="grid w-md grid-cols-[2.5rem_auto_6rem] gap-4">
+    <Avatar
+      character={data.name[0]}
+      color="purple"
+      status={signalingStatus}
+      volumeLevel={micLevel}
+    />
+    <div>
+      {data.name} (You)
+    </div>
     {#if callStatus === "connected"}
-      <div class="flex items-center space-x-2">
-        <MicLevel
-          max={1}
-          value={micVolume}
-        />
-        {#if micMuted}
-          <button
-            class="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 active:bg-gray-600"
-            onclick={unmute}
-            type="button"
-          >
-            Unmute
-          </button>
-        {:else}
-          <button
-            class="rounded-md bg-gray-500 px-4 py-2 text-white"
-            onclick={mute}
-            type="button"
-          >
-            Mute
-          </button>
-        {/if}
-      </div>
+      {#if micMuted}
+        <button
+          class="hover:text-primary-700 rounded-md border border-gray-600 bg-transparent px-4 py-2 text-gray-400 hover:border-gray-600 hover:bg-gray-700 hover:text-white"
+          onclick={unmute}
+          type="button"
+        >
+          Unmute
+        </button>
+      {:else}
+        <button
+          class="hover:text-primary-700 rounded-md border border-gray-600 bg-transparent px-4 py-2 text-gray-400 hover:border-gray-600 hover:bg-gray-700 hover:text-white"
+          onclick={mute}
+          type="button"
+        >
+          Mute
+        </button>
+      {/if}
+    {:else}
+      <div></div>
     {/if}
-  </div>
-  {#each sortedPeers as peer (peer.connectionId)}
-    <div
-      class="grid w-md grid-cols-2 gap-4 px-2 py-4"
-      transition:fade
-    >
-      <PeerEl
-        name={peer.name}
+    {#each sortedPeers as peer (peer.connectionId)}
+      <Avatar
+        character={peer.name[0]}
         color={peer.color}
         status={peer.rtcStatus}
+        volumeLevel={peer.micLevel}
       />
-      <input
-        id="{peer.connectionId}-volume"
-        class="w-16"
-        max="1"
-        min="0"
-        step="0.01"
-        title="volume"
-        type="range"
-        bind:value={peer.volume}
-      />
-      <audio
-        bind:this={peer.remoteAudio}
-        autoplay
-        bind:volume={peer.volume}
-      ></audio>
-    </div>
-  {/each}
+      <div class="truncate">
+        {peer.name}
+      </div>
+      <div>
+        <input
+          id="{peer.connectionId}-volume"
+          class="w-full"
+          max="1"
+          min="0"
+          step="0.01"
+          title="volume"
+          type="range"
+          bind:value={peer.volume}
+        />
+        <audio
+          bind:this={peer.remoteAudio}
+          autoplay
+          bind:volume={peer.volume}
+        ></audio>
+      </div>
+    {/each}
+  </div>
 </div>
-<div class="mb-5">
-  <p>
-    Signaling status: {signalingStatus}
-  </p>
-  <p>
-    Call status: {callStatus}
-  </p>
-</div>
+
 <div class="mb-5">
   {#if callStatus === "disconnected"}
     <button
@@ -328,7 +337,6 @@
     </button>
   {/if}
 </div>
-
 <audio
   bind:this={beepGood}
   src="/beep-good.ogg"

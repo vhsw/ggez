@@ -1,5 +1,5 @@
 const UPDATE_INTERVAL = 1 / 60
-const SMOOTHING_FACTOR = 0.8
+const SMOOTHING_FACTOR = 0.9
 
 class VolumeProcessor extends AudioWorkletProcessor {
   private _lastUpdate: number
