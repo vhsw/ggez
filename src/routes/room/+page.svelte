@@ -192,8 +192,6 @@
     return pc
   }
 
-  async function connectMicLevel(stream: MediaStream) {}
-
   const leaveCall = async () => {
     console.log("leaving call")
     micLevel = 0
