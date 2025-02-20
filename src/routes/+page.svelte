@@ -16,7 +16,8 @@
     <input
       id="id"
       name="id"
-      class="me-2 rounded-md border border-gray-500 bg-gray-700 px-4 py-2 outline-none"
+      class="me-2 mb-1 rounded-md border border-gray-600 bg-gray-700 px-4 py-2 outline-none"
+      aria-describedby="id-helper"
       required
       type="text"
       value={id}
@@ -30,6 +31,13 @@
     >
       Random
     </button>
+    <div
+      id="id-helper"
+      class="text-sm text-gray-400"
+      role="alert"
+    >
+      Enter a room ID or click "Random" to generate one.
+    </div>
   </div>
   <div class="mb-5">
     <label
@@ -41,13 +49,13 @@
     <input
       id="name"
       name="name"
-      class="rounded-md border border-gray-500 bg-gray-700 px-4 py-2 outline-none"
+      class="rounded-md border border-gray-600 bg-gray-700 px-4 py-2 outline-none"
       type="text"
     />
   </div>
   <div class="mb-5">
     <button
-      class="rounded-md bg-purple-500 px-4 py-2 text-white hover:bg-purple-600 active:bg-purple-600"
+      class="rounded-md bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 active:bg-purple-700"
       type="submit"
     >
       Join room

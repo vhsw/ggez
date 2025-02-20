@@ -12,15 +12,14 @@
 <div
   style:background-color={`var(--color-${color}-900)`}
   style:border-color={`rgba(123, 241, 168, ${Math.min(255, (volumeLevel * 255) / 100)})`}
-  class="relative flex size-10 items-center justify-center rounded-full text-lg text-white"
-  class:border-2={status === "connected"}
+  class="relative flex size-10 items-center justify-center rounded-full border-2 text-lg text-white"
   title={status}
 >
   {character}
   <div
     class="absolute right-0 bottom-0 h-2 w-2 rounded-full"
-    class:bg-green-500={status === "connected"}
-    class:bg-red-500={status === "disconnected"}
-    class:bg-yellow-500={status === "connecting"}
+    class:bg-green-600={status === "connected"}
+    class:bg-red-600={status === "disconnected"}
+    class:bg-yellow-600={status === "connecting"}
   ></div>
 </div>

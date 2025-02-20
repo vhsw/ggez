@@ -241,14 +241,21 @@
 </svelte:head>
 
 <h1 class="relative mb-5 text-2xl font-bold">
-  Room <code
+  <code
     class="relative"
+    aria-describedby="id-helper"
     title={signalingStatus}
   >
     {data.id}
   </code>
+  <div
+    id="id-helper"
+    class="text-sm font-normal text-gray-400"
+    role="alert"
+  >
+    Share this room ID with your friends so they can join
+  </div>
 </h1>
-
 <div class="mb-5">
   <div class="mb-3">Online peers:</div>
   <div class="grid max-w-md grid-cols-[2.5rem_auto_6rem] gap-4">
@@ -264,7 +271,7 @@
     {#if callStatus === "connected"}
       {#if micMuted}
         <button
-          class="hover:text-primary-700 rounded-md border border-gray-600 bg-transparent px-4 py-2 text-gray-400 hover:border-gray-600 hover:bg-gray-700 hover:text-white"
+          class="hover:text-primary-700 inline-flex items-center justify-center rounded-md border border-gray-600 bg-transparent px-4 py-2 text-sm text-gray-400 hover:border-gray-600 hover:bg-gray-700 hover:text-white"
           onclick={unmute}
           type="button"
         >
@@ -272,7 +279,7 @@
         </button>
       {:else}
         <button
-          class="hover:text-primary-700 rounded-md border border-gray-600 bg-transparent px-4 py-2 text-gray-400 hover:border-gray-600 hover:bg-gray-700 hover:text-white"
+          class="hover:text-primary-700 inline-flex items-center justify-center rounded-md border border-gray-600 bg-transparent px-4 py-2 text-sm text-gray-400 hover:border-gray-600 hover:bg-gray-700 hover:text-white"
           onclick={mute}
           type="button"
         >
@@ -321,7 +328,7 @@
 <div class="mb-5">
   {#if callStatus === "disconnected"}
     <button
-      class="rounded-md bg-purple-500 px-4 py-2 text-white hover:bg-purple-600 active:bg-purple-600"
+      class="rounded-md bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 active:bg-purple-700"
       onclick={joinCall}
       type="button"
     >
@@ -329,7 +336,7 @@
     </button>
   {:else if callStatus === "connected"}
     <button
-      class="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 active:bg-red-600"
+      class="rounded-md bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 active:bg-red-700"
       onclick={leaveCall}
       type="button"
     >
@@ -337,7 +344,7 @@
     </button>
   {:else if callStatus === "connecting"}
     <button
-      class="cursor-wait rounded-md bg-gray-500 px-4 py-2 text-white"
+      class="cursor-wait rounded-md bg-gray-600 px-4 py-2 text-white"
       disabled
       type="button"
     >
