@@ -11,7 +11,7 @@
   <nav class="flex h-20 items-center gap-3">
     <a href="/">
       <img
-        class="-ms-[14px]"
+        class="-ms-[14px] transition hover:brightness-125"
         alt="GGEZ Logo"
         height="61"
         src="/logo.png"

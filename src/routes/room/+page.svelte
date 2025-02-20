@@ -3,6 +3,7 @@
   import volumeProcUrl from "$lib/volume-processor?worker&url"
   import { Realtime, type InboundMessage, type RealtimeChannel } from "ably"
   import { onDestroy, onMount } from "svelte"
+  import { fade } from "svelte/transition"
   import type { PageData } from "./$types"
   import Avatar from "./Avatar.svelte"
 
@@ -39,6 +40,7 @@
   let realtime: Realtime | null = null
   let roomChannel: RealtimeChannel | null = null
   let selfChannel: RealtimeChannel | null = null
+  let jumpIn: HTMLAudioElement
   let beepBad: HTMLAudioElement
   let beepGood: HTMLAudioElement
 
@@ -51,6 +53,9 @@
 
     await roomChannel.presence.subscribe(["present", "enter"], (msg) => {
       if (msg.connectionId === realtime!.connection.id) return
+      if (!(msg.connectionId in peers)) {
+        jumpIn.play()
+      }
       peers[msg.connectionId] = {
         connectionId: msg.connectionId,
         name: msg.clientId,
@@ -246,7 +251,7 @@
 
 <div class="mb-5">
   <div class="mb-3">Online peers:</div>
-  <div class="grid w-md grid-cols-[2.5rem_auto_6rem] gap-4">
+  <div class="grid max-w-md grid-cols-[2.5rem_auto_6rem] gap-4">
     <Avatar
       character={data.name[0]}
       color="purple"
@@ -278,31 +283,36 @@
       <div></div>
     {/if}
     {#each sortedPeers as peer (peer.connectionId)}
-      <Avatar
-        character={peer.name[0]}
-        color={peer.color}
-        status={peer.rtcStatus}
-        volumeLevel={peer.micLevel}
-      />
-      <div class="truncate">
-        {peer.name}
-      </div>
-      <div>
-        <input
-          id="{peer.connectionId}-volume"
-          class="w-full"
-          max="1"
-          min="0"
-          step="0.01"
-          title="volume"
-          type="range"
-          bind:value={peer.volume}
+      <div
+        class="col-span-3 grid grid-cols-subgrid"
+        transition:fade
+      >
+        <Avatar
+          character={peer.name[0]}
+          color={peer.color}
+          status={peer.rtcStatus}
+          volumeLevel={peer.micLevel}
         />
-        <audio
-          bind:this={peer.remoteAudio}
-          autoplay
-          bind:volume={peer.volume}
-        ></audio>
+        <div class="truncate">
+          {peer.name}
+        </div>
+        <div>
+          <input
+            id="{peer.connectionId}-volume"
+            class="w-full"
+            max="1"
+            min="0"
+            step="0.01"
+            title="volume"
+            type="range"
+            bind:value={peer.volume}
+          />
+          <audio
+            bind:this={peer.remoteAudio}
+            autoplay
+            bind:volume={peer.volume}
+          ></audio>
+        </div>
       </div>
     {/each}
   </div>
@@ -335,6 +345,11 @@
     </button>
   {/if}
 </div>
+<audio
+  bind:this={jumpIn}
+  src="/jumping.ogg"
+  volume={1}
+></audio>
 <audio
   bind:this={beepGood}
   src="/beep-good.ogg"

@@ -23,9 +23,10 @@ You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
-## Attribution
+## Attributions
 
 Sounds
+[Jumping](https://freesound.org/people/unfa/sounds/193438/)
 [Beep Bad](https://freesound.org/people/unfa/sounds/154888/) and
 [Beep Good](https://freesound.org/people/unfa/sounds/154887/)
 by
