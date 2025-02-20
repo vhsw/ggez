@@ -7,7 +7,7 @@
 <svelte:head>
   <title>GGEZ</title>
 </svelte:head>
-<div class="container mx-auto px-4">
+<div class="container mx-auto min-w-80 px-4">
   <nav class="flex h-20 items-center gap-3">
     <a href="/">
       <img
