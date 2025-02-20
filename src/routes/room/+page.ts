@@ -1,3 +1,4 @@
+import { pick } from "$lib/utils"
 import { redirect } from "@sveltejs/kit"
 import type { PageLoad } from "./$types"
 
@@ -27,6 +28,7 @@ const getRandomName = () => {
     "Тонкий",
     "Тяжелый",
     "Хороший",
+    "Чёткий",
   ]
   const nouns = [
     "Волк",
@@ -42,5 +44,3 @@ const getRandomName = () => {
   ]
   return `${pick(adjectives)}${pick(nouns)}`
 }
-
-const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
