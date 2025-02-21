@@ -10,6 +10,9 @@ const config = {
       split: false,
     }),
   },
+  compilerOptions: {
+    runes: true,
+  },
 }
 
 export default config
