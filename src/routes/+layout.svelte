@@ -7,6 +7,14 @@
 
 <svelte:head>
   <title>GGEZ</title>
+  <meta
+    name="description"
+    content="GGEZ is a low-latency voice chat for gamers with direct peer-to-peer connections ensuring exceptional stability and privacy for your calls"
+  />
+  <meta
+    name="keywords"
+    content="GGEZ, Voice chat, WebRTC, gaming, peer-to-peer"
+  />
 </svelte:head>
 <div class="container mx-auto min-h-screen min-w-80 px-4">
   <nav class="flex h-20 items-center gap-3">
