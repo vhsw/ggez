@@ -2,6 +2,7 @@
 </script>
 
 <svg
+  aria-hidden="true"
   height="24"
   viewBox="0 0 96 98"
   width="24"
