@@ -83,7 +83,6 @@
   })
 
   const joinCall = async () => {
-    console.log("joining call")
     callStatus = "connecting"
     if (!realtime) {
       callStatus = "disconnected"
@@ -92,10 +91,16 @@
 
     selfChannel = realtime.channels.get(`${data.id}:${realtime.connection.id}`)
     await selfChannel.subscribe("icecandidate", async (msg) => {
-      getPeer(msg).pc?.addIceCandidate(msg.data)
+      console.debug("Received ice candidate", msg)
+      const pc = getPeer(msg).pc
+      if (!pc) {
+        console.error("Received ice candidate for non-existent peer connection")
+        return
+      }
+      pc.addIceCandidate(msg.data)
     })
     await selfChannel.subscribe("offer", async (msg) => {
-      console.log("Received offer", msg)
+      console.debug("Received offer", msg)
       const peer = getPeer(msg)
       if (peer.pc) {
         peer.pc.close()
@@ -107,12 +112,11 @@
       realtime?.channels.get(`${data.id}:${msg.connectionId}`).publish("answer", answer)
     })
     await selfChannel.subscribe("answer", async (msg) => {
-      console.log("Received answer", msg)
+      console.debug("Received answer", msg)
       const peer = getPeer(msg)
       if (peer.pc?.signalingState !== "stable") {
         peer.pc?.setRemoteDescription(new RTCSessionDescription(msg.data))
       }
-      peer.rtcStatus = "connected"
     })
     audioContext = new AudioContext()
     await audioContext.audioWorklet.addModule(volumeProcUrl)
@@ -133,7 +137,9 @@
       micNode.connect(volumeNode)
     }
     const getPeer = (msg: InboundMessage) => {
-      if (!msg.connectionId || !(msg.connectionId in peers)) throw new Error("Invalid connectionId")
+      if (!msg.connectionId || !(msg.connectionId in peers)) {
+        throw new Error(`Invalid connectionId: ${msg.connectionId}`)
+      }
       return peers[msg.connectionId]
     }
 
@@ -144,7 +150,7 @@
   }
 
   const initiateConnection = async (peer: Peer) => {
-    console.log(`connecting to peer ${peer.name}`)
+    console.debug(`connecting to peer ${peer.name}`)
     peer.pc = createRTCPeerConnection(peer)
     peer.rtcStatus = "connecting"
     const description = await peer.pc?.createOffer()
@@ -160,8 +166,8 @@
         channel?.publish("icecandidate", event.candidate.toJSON())
       }
     })
-    pc.addEventListener("iceconnectionstatechange", async (event) => {
-      console.log("iceconnectionstatechange", event)
+    pc.addEventListener("iceconnectionstatechange", async () => {
+      console.debug("iceconnectionstatechange", pc.iceConnectionState)
     })
     pc.addEventListener("track", (event) => {
       const stream = event.streams[0]
@@ -177,29 +183,29 @@
         remoteAudio.srcObject = stream
       }
     })
-    pc.addEventListener("connectionstatechange", (event) => {
-      console.log("connectionstatechange", event)
-      if (pc?.connectionState === "connected") {
-        console.log("Connected to remote peer")
-        beepGood?.play()
-        peer.rtcStatus = "connected"
-      } else if (pc?.connectionState === "disconnected") {
-        console.log("Disconnected from remote peer")
-        disconnectPeer(peer)
-        beepBad?.play()
+    pc.addEventListener("connectionstatechange", () => {
+      console.debug("connectionstatechange", pc.connectionState)
+      switch (pc.connectionState) {
+        case "connected":
+          console.debug("Connected to remote peer")
+          beepGood?.play()
+          peer.rtcStatus = "connected"
+          break
+        case "disconnected":
+          console.debug("Disconnected from remote peer")
+          beepBad?.play()
+          peer.rtcStatus = "disconnected"
+          break
       }
     })
     localStream?.getTracks().forEach((track) => {
       if (!pc || !localStream) return
-      console.log("Adding track to peer connection")
       pc.addTrack(track, localStream)
     })
     return pc
   }
 
   const leaveCall = async () => {
-    console.log("leaving call")
-    micLevel = 0
     await audioContext?.close()
     Object.values(peers).forEach((p) => disconnectPeer(p))
     audioContext = null
@@ -208,11 +214,12 @@
     selfChannel?.unsubscribe()
     selfChannel?.detach()
     selfChannel = null
+    micLevel = 0
     callStatus = "disconnected"
   }
 
   const disconnectPeer = (peer: Peer) => {
-    console.log("disconnecting peer")
+    console.debug(`disconnecting peer ${peer.name}`)
     peer.pc?.close()
     peer.pc = null
     if (peer.remoteAudio) peer.remoteAudio.srcObject = null
@@ -220,7 +227,6 @@
   }
 
   const mute = async () => {
-    console.log("muting")
     localStream?.getAudioTracks().forEach((t) => {
       t.enabled = false
     })
@@ -228,7 +234,6 @@
   }
 
   const unmute = async () => {
-    console.log("unmuting")
     localStream?.getAudioTracks().forEach((t) => {
       t.enabled = true
     })
@@ -328,7 +333,8 @@
 <div class="mb-5">
   {#if callStatus === "disconnected"}
     <button
-      class="rounded-md bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 active:bg-purple-700"
+      class="rounded-md bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 active:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+      disabled={signalingStatus !== "connected"}
       onclick={joinCall}
       type="button"
     >
