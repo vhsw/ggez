@@ -16,7 +16,7 @@
     content="GGEZ, Voice chat, WebRTC, gaming, peer-to-peer"
   />
 </svelte:head>
-<div class="container mx-auto min-h-screen min-w-80 px-4">
+<div class="relative container mx-auto min-h-screen min-w-80 px-4 pb-10">
   <nav class="flex h-20 items-center gap-3">
     <a href="/">
       <img
@@ -30,7 +30,7 @@
   </nav>
   {@render children()}
   <footer
-    class="fixed bottom-0 flex w-full flex-wrap justify-start gap-4 bg-gray-900 p-2 text-gray-300"
+    class="absolute bottom-0 flex w-full flex-wrap justify-start gap-4 bg-gray-900 py-2 text-gray-300"
   >
     <span>
       &copy; 2025 by
