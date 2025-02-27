@@ -271,7 +271,10 @@
       volumeLevel={micLevel}
     />
     <div>
-      {data.name} (You)
+      <div>
+        {data.name}
+      </div>
+      <div class="text-sm leading-4 font-normal text-gray-400">(You)</div>
     </div>
     {#if callStatus === "connected"}
       {#if micMuted}
@@ -311,7 +314,7 @@
         <div>
           <input
             id="{peer.connectionId}-volume"
-            class="w-full"
+            class="w-20"
             max="1"
             min="0"
             step="0.01"
