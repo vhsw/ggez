@@ -30,7 +30,7 @@
   </nav>
   {@render children()}
   <footer
-    class="absolute bottom-0 flex w-full flex-wrap justify-start gap-4 bg-gray-900 py-2 text-gray-300"
+    class="absolute right-4 bottom-0 left-4 flex flex-wrap justify-start gap-4 bg-gray-900 py-2 text-gray-300"
   >
     <span>
       &copy; 2025 by
