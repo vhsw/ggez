@@ -4,9 +4,13 @@ import type { PageLoad } from "./$types"
 
 export const load = (async ({ url }) => {
   const id = url.searchParams.get("id")
-  const name = url.searchParams.get("name") || getRandomName()
   if (!id) {
     return redirect(307, "/")
+  }
+  const name = url.searchParams.get("name")
+  if (!name) {
+    url.searchParams.set("name", getRandomName())
+    return redirect(307, url)
   }
   return {
     id,
