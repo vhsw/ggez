@@ -118,6 +118,12 @@
         peer.pc?.setRemoteDescription(new RTCSessionDescription(msg.data))
       }
     })
+    const getPeer = (msg: InboundMessage) => {
+      if (!msg.connectionId || !(msg.connectionId in peers)) {
+        throw new Error(`Invalid connectionId: ${msg.connectionId}`)
+      }
+      return peers[msg.connectionId]
+    }
     audioContext = new AudioContext()
     await audioContext.audioWorklet.addModule(volumeProcUrl)
     try {
@@ -136,13 +142,6 @@
       const micNode = audioContext.createMediaStreamSource(localStream)
       micNode.connect(volumeNode)
     }
-    const getPeer = (msg: InboundMessage) => {
-      if (!msg.connectionId || !(msg.connectionId in peers)) {
-        throw new Error(`Invalid connectionId: ${msg.connectionId}`)
-      }
-      return peers[msg.connectionId]
-    }
-
     Object.values(peers).forEach((p) => {
       initiateConnection(p)
     })
