@@ -1,19 +1,23 @@
 <script lang="ts">
-  interface Props {
+  import type { HTMLAttributes } from "svelte/elements"
+
+  interface Props extends HTMLAttributes<HTMLDivElement> {
     character: string
     status: "connecting" | "connected" | "disconnected"
-    color: string
     volumeLevel: number
   }
 
-  let { character, status, color, volumeLevel }: Props = $props()
+  let { character, status, volumeLevel, class: klass, ...rest }: Props = $props()
 </script>
 
 <div
-  style:background-color={`var(--color-${color}-900)`}
   style:border-color={`rgba(123, 241, 168, ${Math.min(255, (volumeLevel * 255) / 100)})`}
-  class="relative flex size-10 items-center justify-center rounded-full border-2 text-lg text-white"
+  class={[
+    "relative flex size-10 items-center justify-center rounded-full border-2 text-lg text-white",
+    klass,
+  ]}
   title={status}
+  {...rest}
 >
   {character}
   <div

@@ -48,8 +48,17 @@
     signalingStatus = "connecting"
     realtime = new Realtime({ authUrl: "/auth", clientId: data.name, echoMessages: false })
     roomChannel = realtime.channels.get(data.id)
-    const getRandomColor = () =>
-      pick(["amber", "lime", "emerald", "cyan", "sky", "indigo", "violet", "pink"])
+    const getRandomBg = () =>
+      pick([
+        "bg-amber-900",
+        "bg-lime-900",
+        "bg-emerald-900",
+        "bg-cyan-900",
+        "bg-sky-900",
+        "bg-indigo-900",
+        "bg-violet-900",
+        "bg-pink-900",
+      ])
 
     await roomChannel.presence.subscribe(["present", "enter"], (msg) => {
       if (msg.connectionId === realtime!.connection.id) return
@@ -64,7 +73,7 @@
         micLevel: 0,
         channel: realtime!.channels.get(`${data.id}:${msg.connectionId}`),
         rtcStatus: "disconnected",
-        color: getRandomColor(),
+        color: getRandomBg(),
       }
     })
     await roomChannel.presence.subscribe("leave", (msg) => {
@@ -264,8 +273,8 @@
   <div class="mb-3">Online peers:</div>
   <div class="grid max-w-md grid-cols-[2.5rem_auto_6rem] gap-4">
     <Avatar
+      class="bg-purple-900"
       character={data.name[0]}
-      color="purple"
       status={signalingStatus}
       volumeLevel={micLevel}
     />
@@ -302,8 +311,8 @@
         transition:fade
       >
         <Avatar
+          class={peer.color}
           character={peer.name[0]}
-          color={peer.color}
           status={peer.rtcStatus}
           volumeLevel={peer.micLevel}
         />
@@ -373,5 +382,5 @@
 <audio
   bind:this={beepBad}
   src="/beep-bad.ogg"
-  volume={1}
+  volume={0.2}
 ></audio>
