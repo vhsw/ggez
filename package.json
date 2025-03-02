@@ -40,6 +40,9 @@
   "overrides": {
     "@sveltejs/kit": {
       "cookie": "^1.0.0"
+    },
+    "@sveltejs/adapter-netlify": {
+      "esbuild": "^0.25.0"
     }
   }
 }
