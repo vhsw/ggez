@@ -193,17 +193,23 @@
         remoteAudio.srcObject = stream
       }
     })
+    let lastDisconnect = 0
+    let beepBadTimeout: ReturnType<typeof setTimeout>
     pc.addEventListener("connectionstatechange", () => {
       console.debug("connectionstatechange", pc.connectionState)
       switch (pc.connectionState) {
         case "connected":
           console.debug("Connected to remote peer")
-          beepGood?.play()
+          clearTimeout(beepBadTimeout)
+          if (Date.now() - lastDisconnect > 3_000) {
+            beepGood?.play()
+          }
           peer.rtcStatus = "connected"
           break
         case "disconnected":
           console.debug("Disconnected from remote peer")
-          beepBad?.play()
+          lastDisconnect = Date.now()
+          beepBadTimeout = setTimeout(() => beepBad?.play(), 3_000)
           peer.rtcStatus = "disconnected"
           break
       }
