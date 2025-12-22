@@ -10,7 +10,7 @@
   const { data }: { data: PageData } = $props()
   const configuration = {
     iceServers: [
-      { urls: ["stun:stun.bethesda.net:3478 "] },
+      { urls: ["stun:stun.bethesda.net:3478"] },
       { urls: ["stun:stun.voip.blackberry.com:3478"] },
       { urls: ["stun:stun.nextcloud.com:3478"] },
       { urls: ["stun:stun.freeswitch.org:3478"] },
