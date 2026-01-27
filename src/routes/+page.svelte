@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { resolve } from '$app/paths'
+
   let id = $state("")
 </script>
 
 <form
-  action="/room"
+  action={resolve('/room')}
   method="get"
 >
   <div class="mb-5">
