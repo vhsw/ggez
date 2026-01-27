@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { asset, resolve } from "$app/paths"
   import { pick } from "$lib/utils"
   import volumeProcUrl from "$lib/volume-processor?worker&url"
   import { Realtime, type InboundMessage, type RealtimeChannel } from "ably"
@@ -48,7 +49,7 @@
 
   onMount(async () => {
     signalingStatus = "connecting"
-    realtime = new Realtime({ authUrl: "/auth", clientId: data.name, echoMessages: false })
+    realtime = new Realtime({ authUrl: resolve("/auth"), clientId: data.name, echoMessages: false })
     roomChannel = realtime.channels.get(data.id)
     const getRandomBg = () =>
       pick([
@@ -379,16 +380,16 @@
 </div>
 <audio
   bind:this={jumpIn}
-  src="/jumping.ogg"
+  src={asset("/jumping.ogg")}
   volume={1}
 ></audio>
 <audio
   bind:this={beepGood}
-  src="/beep-good.ogg"
+  src={asset("/beep-good.ogg")}
   volume={0.2}
 ></audio>
 <audio
   bind:this={beepBad}
-  src="/beep-bad.ogg"
+  src={asset("/beep-bad.ogg")}
   volume={0.2}
 ></audio>

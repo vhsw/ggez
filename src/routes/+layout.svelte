@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { asset, resolve } from "$app/paths"
   import "../app.css"
   import GitHubIcon from "./GithubIcon.svelte"
 
@@ -18,12 +19,12 @@
 </svelte:head>
 <div class="relative container mx-auto min-h-screen min-w-80 px-4 pb-10">
   <nav class="flex h-20 items-center gap-3">
-    <a href="/">
+    <a href={resolve("/")}>
       <img
-        class="-ms-[14px] transition hover:brightness-125"
+        class="-ms-3.5 transition hover:brightness-125"
         alt="GGEZ Logo"
         height="61"
-        src="/logo.png"
+        src={asset("/logo.png")}
         width="150"
       />
     </a>
