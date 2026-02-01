@@ -1,3 +1,4 @@
+import { resolve } from "$app/paths"
 import { pick } from "$lib/utils"
 import { redirect } from "@sveltejs/kit"
 import type { PageLoad } from "./$types"
@@ -5,7 +6,7 @@ import type { PageLoad } from "./$types"
 export const load = (async ({ url }) => {
   const id = url.searchParams.get("id")
   if (!id) {
-    return redirect(307, "/")
+    return redirect(307, resolve("/"))
   }
   const name = url.searchParams.get("name")
   if (!name) {

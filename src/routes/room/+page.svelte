@@ -49,7 +49,7 @@
 
   onMount(async () => {
     signalingStatus = "connecting"
-    realtime = new Realtime({ authUrl: resolve("/auth"), clientId: data.name, echoMessages: false })
+    realtime = new Realtime({ authUrl: resolve("/api"), clientId: data.name, echoMessages: false })
     roomChannel = realtime.channels.get(data.id)
     const getRandomBg = () =>
       pick([
